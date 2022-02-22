@@ -13,6 +13,7 @@ function getContract(signer) {
 }
 
 function App() {
+  const [stateUpdateInProgress, setStateUpdateInProgress] = useState(false)
   const [provider, setProvider] = useState(null)
   const [signer, setSigner] = useState(null)
   const [address, setAddress] = useState(null)
@@ -22,11 +23,15 @@ function App() {
   const [tickets, setTickets] = useState(null)
   const [txInProgress, setTxInProgress] = useState(false)
 
+
   function reset() {
     if(window.ethereum)
       window.ethereum.removeAllListeners()
+
     if(provider)
       provider.removeAllListeners()
+
+    setStateUpdateInProgress(true)
     setTxInProgress(false)
     setWinning(null)
     setTickets(null)
@@ -34,6 +39,7 @@ function App() {
     setTicketPrice(null)
     setSigner(null)
     setProvider(null)
+    setStateUpdateInProgress(false)
   }
 
   async function handleNewBlock(number) {
@@ -101,7 +107,7 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      if(!window.ethereum) {
+      if(!window.ethereum || stateUpdateInProgress) {
         return
       } else if(!provider) {
         const _provider = new ethers.providers.Web3Provider(window.ethereum)
@@ -136,7 +142,7 @@ function App() {
     return <div>Invalid network, please connect your wallet to hardhat node on Localhost:8545</div>
   }
 
-  if(!ticketPrice || !blockNumber || winning === null || tickets === null) {
+  if(!ticketPrice || !blockNumber || winning === null || tickets === null || stateUpdateInProgress) {
     return <div>Please wait, loading data...</div>
   }
 
