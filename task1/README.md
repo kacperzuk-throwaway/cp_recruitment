@@ -11,7 +11,7 @@ npx hardhat run scripts/deploy.js --network localhost | tee ../webapp/src/config
 
 cd ../webapp
 npm install
-npm start # web browser should open
+npm start # web browser should open, if not - visit http://localhost:3000
 ```
 
 ## Notes
