@@ -109,14 +109,20 @@ describe("Lottery contract", function () {
 
     // hard to test undeterministic stuff :/
     it("wins ~10% of tickets", async function() {
-      const n = 230;
-      for(let i = 0; i < n; i++)
-        await hardhatLottery.buyTicket(addrs[0].address, {value: ticketPrice});
-
-      // automine gives us a block after each tx, get some more to make sure all tickets are old enough
-      await mine(network, 3);
-      let wins = 0
+      const n = 400;
+      let lastChecked = -1;
+      let wins = 0;
       for(let i = 0; i < n; i++) {
+        await hardhatLottery.buyTicket(addrs[0].address, {value: ticketPrice});
+        if(i >= 3) {
+          const checkId = i - 3;
+          wins += await hardhatLottery.checkIfWinning(checkId)
+          lastChecked = checkId;
+        }
+      }
+
+      await mine(network, 3);
+      for(let i = lastChecked+1; i < n; i++) {
         wins += await hardhatLottery.checkIfWinning(i);
       }
       // wide margin to reduce false-positives
