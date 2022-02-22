@@ -106,13 +106,13 @@ function App () {
       } else if (!provider) {
         const _provider = new ethers.providers.Web3Provider(window.ethereum)
         setProvider(_provider)
+        window.ethereum.once('accountsChanged', reset)
+        window.ethereum.once('chainChanged', reset)
       } else if (!signer) {
         const [_address] = await provider.send('eth_requestAccounts', [])
         const _signer = provider.getSigner()
         setAddress(_address)
         setSigner(_signer)
-        window.ethereum.once('accountsChanged', reset)
-        window.ethereum.once('chainChanged', reset)
       } else if (!blockNumber) {
         provider.on('block', handleNewBlock)
         const _blockNumber = await provider.getBlockNumber()
