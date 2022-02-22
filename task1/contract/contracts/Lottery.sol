@@ -24,7 +24,10 @@ contract Lottery {
   // Used to select block hashes for deciding whether it's a winning ticket or not
   mapping(uint256 => uint256) private _blocks;
 
-  // In this contract, withdrawing a prize results in burning all tickets that were minted before the one being processed. We keep track of winnings for all winning tickets that were burned, so that prizes can be withdrawn out-of-order of buying tickets.
+  // In this contract, withdrawing a prize results in burning all tickets that
+  // were minted before the one being processed. We keep track of winnings for
+  // all winning tickets that were burned, so that prizes can be withdrawn
+  // out-of-order of buying tickets.
   mapping(address => uint256) public winnings;
 
   // Used for incrementing ticket Ids
@@ -51,7 +54,7 @@ contract Lottery {
   }
 
   function checkIfWinning(uint256 ticketId) public view requiresValidTicket(ticketId) returns (bool) {
-    require(isOldEnough(ticketId), "Not ready yet, check again later!");
+    require(isOldEnough(ticketId), "Not ready yet");
 
     uint256 mintedBlockNumber = _blocks[ticketId];
     require(!isExpired(ticketId), "Ticket expired!");
@@ -59,9 +62,9 @@ contract Lottery {
     uint256 randomNumber = uint256(
       keccak256(
         abi.encodePacked(
-          blockhash(mintedBlockNumber), '-',
-          blockhash(mintedBlockNumber + 1), '-',
-          blockhash(mintedBlockNumber + 2), '-',
+          blockhash(mintedBlockNumber), "-",
+          blockhash(mintedBlockNumber + 1), "-",
+          blockhash(mintedBlockNumber + 2), "-",
           ticketId
         )
       ));
@@ -71,7 +74,7 @@ contract Lottery {
 
   // used internally to cleanup ticket after it's been processed
   function _burn(uint256 ticketId) private requiresValidTicket(ticketId) {
-    require(ticketId == firstValidTicket, "Only the first unprocessed ticket can be burned!");
+    require(ticketId == firstValidTicket, "Not burnable");
     firstValidTicket += 1;
     delete _blocks[ticketId];
     delete _owners[ticketId];
@@ -125,6 +128,7 @@ contract Lottery {
     // that would be wasteful
     if (winning > 0) {
       winnings[to] = 0;
+      // solhint-disable-next-line avoid-low-level-calls
       (bool sent, ) = to.call{value: winning}("");
       require(sent, "Failed to send Ether");
     }
