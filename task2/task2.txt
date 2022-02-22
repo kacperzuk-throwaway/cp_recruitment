@@ -1,0 +1,91 @@
+1) Questions and concerns
+
+a) 'price', 'cost', 'qty', 'min_qty' - is it per package or per individual
+item? For example for row 2 - Ant Trap packaged in a bag of 10 with price $9 -
+is the $9 for a whole bag of 10 Ant Traps, or for a Ant Trap?
+
+b) Is the assumption that 'qty' means how many items / packages we have of a
+given 'widget' in given 'warehouse' and that it's independent of customer is correct?
+
+c) Are 'widget's "commodities" that are fungible and could be provided by
+different suppliers in the future or are there "unique" and different between
+suppliers?
+
+c) What each row of data represents? My guess is that they're orders, but that
+makes 'qty' and 'min_qty' difficult to understand. I have 2 possible
+interpretations here, both with issues though:
+   * 'qty' is the quantity ordered by client and 'min_qty' is the minimum
+     quantity allowed for this type of order. This raises following questions:
+     - 'qty' values seems to be dependent on 'widget' and 'warehouse', not on
+       order. Is this just a coincidence?
+     - why are there rows with 'qty' < 'min_qty'? Are these just invalid
+       orders?
+   * 'qty' is the quantity we have in warehouse, 'min_qty' is the amount
+     ordered by the client. Why it's called 'min_qty' then? Maybe
+     'widgets.tsv' is a report that's focused strictly on fulfillment and
+     this is to make it easier to check which orders could be processed? It's
+     however suspicious that a given widget type always has the same 'min_qty'
+
+d) Is 'cost' always the same for given 'widget', regardless of supplier,
+packaging etc?
+
+e) Is given 'widget' type always stored in a single 'warehouse'?
+
+2) What you think this system would do?
+
+I have many questions and concerns, so I'll make some assumptions:
+* rows are orders from customers
+* price is per individual item, not packaging (based on wildly different price
+  of 'box of 1' and 'box of 5' 'Bear Trap)
+* 'widgets.tsv' is a report for fulfillment purposes, so 'min_qty' is the
+  amount of individual 'widgets' ordered by 'customer'
+* 'qty' is how many individual 'widgets' of given type we have in given
+  'warehouse'
+* 'cost' only depends on 'widget'
+* given widget type can only be supplied by a single supplier and is stored in a
+  single warehouse
+
+The problem to be solved here seems to be fulfillment management for a
+store that specializes in selling traps. It seems that the requirements here
+aren't different from any generic store/warehouse company, so my first take at
+this would be to suggest checking out off-the-shelf software solutions, as
+market for this kind of software is very well developed and using
+off-the-shelf solution would almost certainly be cheaper than developing a
+custom one.
+
+That said, what the system should allow:
+* managing list of suppliers from which we get our stock
+* managing list of warehouses in which stock is kept
+* managing list of customers to which stock is sold
+* managing list of widgets that is being sold
+* managing packaging variants for each widget
+* tracking quantity of each widget in our warehouses
+* setting price separately for each order
+* setting cost of a given widget
+* producing reports:
+  * orders ready to be processed
+  * maybe some earnings per order reports based on price vs cost
+  * maybe biggest clients
+  * maybe best selling widgets
+
+3) What you feel would be a reasonable database structure for the data?
+
+See dbdiagram.txt (to be loaded on https://dbdiagram.io/d ) and dbdiagram.png
+
+4) [...] and a reasonable architecture for the system?
+
+Depends on the expertise of the implementation team, as this looks simple
+enough to be implemented in any architecture.
+
+My proposal:
+1. RDBMS like PostgreSQL to store data
+2. Monolithic backend application that serves REST API that allows interacting
+with data. Use framework designed for REST APIs like Python FastAPI. I'd also
+consider GraphQL solutions here, as that would make it easier to generate
+custom reports (if it ends up being a clients requirement).
+3. Single-page application as a frontend using a framework designed for
+managing whole application like Vue.js.
+
+Good alternative would be to use a full stack framework like Django, Ruby on
+Rails, Laravel etc. MVC pattern and framework's best practices and patterns
+would dictate internal code structure in this case.

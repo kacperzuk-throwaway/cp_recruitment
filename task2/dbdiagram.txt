@@ -1,0 +1,42 @@
+Table warehouses {
+  id int [pk, increment]
+  code varchar [not null, unique]
+}
+
+Table customers {
+  id int [pk, increment]
+  name varchar [not null]
+}
+
+Table suppliers {
+  id int [pk, increment]
+  name varchar [not null]
+}
+
+Table widgets {
+  id int [pk, increment]
+  name varchar [not null]
+  supplier_id int [ref: > suppliers.id]
+  warehouse_id int [ref: > warehouses.id]
+  qty int
+}
+
+Table package_types {
+  id int [pk, increment]
+  name varchar [not null]
+}
+
+Table widget_package_variants {
+  id int [pk, increment]
+  widget_id int [ref: > widgets.id]
+  package_type int [ref: > package_types.id]
+  qty_in_package int
+}
+
+Table orders {
+  id int [pk, increment]
+  customer_id int [ref: > customers.id]
+  widget_package_variant int [ref: > widget_package_variants.id]
+  min_qty int
+}
+
